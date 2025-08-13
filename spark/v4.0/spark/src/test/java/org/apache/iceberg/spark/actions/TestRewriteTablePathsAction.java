@@ -83,6 +83,8 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import scala.Tuple2;
 
 public class TestRewriteTablePathsAction extends TestBase {
@@ -1042,12 +1044,13 @@ public class TestRewriteTablePathsAction extends TestBase {
     checkFileNum(2, 1, 1, 5, result2);
   }
 
-  @Test
-  public void testDeleteFrom() throws Exception {
+  @ParameterizedTest(name = "testDeleteFrom_formatVersion_{0}")
+  @ValueSource(strings = {"2", "3", "4"})
+  public void testDeleteFrom(final String formatVersion) throws Exception {
     Map<String, String> properties = Maps.newHashMap();
-    properties.put("format-version", "2");
+    properties.put("format-version", formatVersion);
     properties.put("write.delete.mode", "merge-on-read");
-    String tableName = "v2tbl";
+    String tableName = String.format("v%stbl", formatVersion);
     Table sourceTable =
         createMetastoreTable(newTableLocation(), properties, "default", tableName, 0);
     // ingest data
